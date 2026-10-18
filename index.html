@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>wendust 社区</title>
+<meta http-equiv="Cache-Control" content="no-store" />
+<style>
+body{margin:0;background:#F3F6F1;font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;}
+.bar{background:#2E7D32;color:#fff;padding:14px 18px;font-weight:700;font-size:17px;letter-spacing:1px;}
+.sub{background:#388E3C;color:#E8F5E9;padding:8px 18px;font-size:12px;}
+.wrap{max-width:760px;margin:0 auto;padding:14px;}
+.post{background:#fff;border-radius:12px;padding:14px 16px;margin:12px 0;border:1px solid #DCE7DA;}
+.post h3{margin:0 0 6px;font-size:15px;color:#1A1D26;}
+.post .meta{font-size:12px;color:#8A94A6;margin-bottom:8px;}
+.post .body{font-size:14px;line-height:1.9;color:#3A3A3A;white-space:pre-wrap;word-break:break-word;}
+.empty{text-align:center;color:#8A94A6;padding:40px 0;font-size:14px;}
+.label{display:inline-block;background:#E8F5E9;color:#2E7D32;font-size:11px;padding:2px 8px;border-radius:10px;margin-left:6px;}
+</style>
+</head>
+<body>
+<div class="bar">wendust 社区</div>
+<div class="sub">所有用户的帖子都在这里 · 数据存于 wendust-community 开源仓库 · 永久保存</div>
+<div class="wrap" id="posts"><div class="empty">正在加载帖子…</div></div>
+<script>
+(function(){
+  var T = "token_PLACEHOLDER";
+  fetch("https://api.github.com/repos/wendust/wendust-community/issues?state=open&per_page=50")
+    .then(r => r.json())
+    .then(list => {
+      var box = document.getElementById("posts");
+      if (!Array.isArray(list) || list.length === 0) {
+        box.innerHTML = '<div class="empty">还没有帖子——第一帖由你来发。</div>';
+        return;
+      }
+      box.innerHTML = "";
+      list.forEach(function(p){
+        var d = document.createElement("div");
+        d.className = "post";
+        var body = (p.body || "").replace(/</g, "&lt;");
+        d.innerHTML = '<h3>' + p.title.replace(/</g, "&lt;") +
+          (p.labels && p.labels.length ? '<span class="label">' + p.labels[0].name + '</span>' : '') +
+          '</h3><div class="meta">' + p.user.login + ' · ' + new Date(p.created_at).toLocaleString("zh-CN") +
+          ' · 评论 ' + p.comments + '</div><div class="body">' + body + '</div>';
+        box.appendChild(d);
+      });
+    })
+    .catch(() => { document.getElementById("posts").innerHTML = '<div class="empty">加载失败，请稍后刷新。</div>'; });
+})();
+</script>
+</body>
+</html>
